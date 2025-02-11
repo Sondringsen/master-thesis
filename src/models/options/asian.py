@@ -1,4 +1,4 @@
-from options.option import Option   
+from option import Option   
 
 class Asian(Option):
     def __init__(self, strike_price):

@@ -1,3 +1,6 @@
 [submodule "src/VAE/timeVAE"]
 	path = src/VAE/timeVAE
 	url = git@github.com:abudesai/timeVAE.git
+[submodule "src/TimeGAN"]
+	path = src/TimeGAN
+	url = git@github.com:jsyoon0823/TimeGAN.git

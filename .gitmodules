@@ -1,3 +1,6 @@
-[submodule "src/timeVAE"]
-	path = src/timeVAE
+[submodule "src/models/data_generating_models/TimeGAN"]
+	path = src/models/data_generating_models/TimeGAN
+	url = git@github.com:jsyoon0823/TimeGAN.git
+[submodule "src/models/data_generating_models/TimeVAE"]
+	path = src/models/data_generating_models/TimeVAE
 	url = git@github.com:abudesai/timeVAE.git

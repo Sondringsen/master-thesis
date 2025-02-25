@@ -1,0 +1,3 @@
+[submodule "src/VAE/timeVAE"]
+	path = src/VAE/timeVAE
+	url = git@github.com:abudesai/timeVAE.git

@@ -31,7 +31,7 @@ class Heston():
         if 2*kappa*theta <= sigma**2:
             raise ValueError("Feller condition not satisfied. Check your input parameters for the Heston model.")
         
-    def generate_paths(self):
+    def generate_data(self):
         w1 = np.random.normal(size=(self.M, self.N))
         w2 = self.rho * w1 + np.sqrt(1 - self.rho ** 2) * np.random.normal(size=(self.M, self.N))
 
@@ -54,4 +54,8 @@ class Heston():
 
         return s_t
 
+    def save_data(self, path="data/processed/Heston_price_paths.csv"):
+        """Saves the price paths to a file."""
+        price_paths = self.generate_paths()
+        price_paths.to_csv(path, index=True)
         

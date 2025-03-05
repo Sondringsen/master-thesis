@@ -19,4 +19,15 @@ pip freeze > requirements.txt
 
 
 ### Structure
-
+1. To train and tune models, run 
+```sh
+python src/main_data_generation.py --model-tune model1,model2,model3 --model-generate model1,model2,model3
+``` 
+from root or with the all-tune or all-train flag set like this to train and tune all available models:
+```sh
+python src/main_data_generation.py --all-tune=True --all-generate=True
+```
+2. Hedge models by running
+```sh
+python something
+```

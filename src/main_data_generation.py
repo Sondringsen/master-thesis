@@ -28,8 +28,8 @@ def main():
     parser = argparse.ArgumentParser(description='Tune models')
     parser.add_argument('-t', '--model-tune', nargs='+', help='List of models to tune', default=[])
     parser.add_argument('-g', '--model-generate', nargs='+', help='List of models to generate data', default=[])
-    parser.add_argument('-a', '--all_tune', type=bool, help='Flag for tuning all models', default=False)
-    parser.add_argument('-b', '--all_generate', type=bool, help='Flag for generating data for all models', default=False)
+    parser.add_argument('-a', '--all-tune', type=bool, help='Flag for tuning all models', default=False)
+    parser.add_argument('-b', '--all-generate', type=bool, help='Flag for generating data for all models', default=False)
     
     args = parser.parse_args()
 

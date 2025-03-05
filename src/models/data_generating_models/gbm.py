@@ -49,8 +49,10 @@ class GBM(DataGeneratingModel):
     def generate_data(self):
         """Generates M price paths with N timesteps using a GBM model."""
         Z = np.random.normal(size=(self.M, self.N))
-        price_paths = 100 * np.exp(np.cumsum((self.params["mu"] - 0.5 * self.params["sigma"] ** 2) * self.N/252 + self.params["sigma"] * np.sqrt(self.N/252) * Z, axis=1)) # s0
-        self.synth_data = pd.DataFrame(price_paths.T)
+
+        #### TODO: S0 CANNOT BE 100 HERE, MUST SET IT SOMEWHERE ELSE
+        price_paths = 100 * np.exp(np.cumsum((self.params["mu"] - 0.5 * self.params["sigma"] ** 2) * self.N/252 + self.params["sigma"] * np.sqrt(self.N/252) * Z, axis=1))
+        self.synth_data = pd.DataFrame(price_paths)
 
         file_path = "data/processed/gbm_synth_data.csv"
         self._save_synth_data(file_path)

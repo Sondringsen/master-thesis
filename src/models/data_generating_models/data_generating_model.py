@@ -1,9 +1,13 @@
 from abc import abstractmethod, ABC
 import pandas as pd
+import numpy as np
+from scipy.integrate import simpson
+import scipy.stats as stats
 
 class DataGeneratingModel(ABC):
     def __init__(self, train_data: pd.DataFrame, N: int, M: int, **params):
         self.train_data = train_data
+        self.train_data_returns = train_data.pct_change().dropna().to_numpy().flatten()
         self.N = N
         self.M = M
         self.params = params
@@ -14,12 +18,21 @@ class DataGeneratingModel(ABC):
         raise NotImplementedError("Subclasses should implement this method")
 
     @abstractmethod
-    def generate_data(self):
+    def generate_data(self, save: bool = False):
         raise NotImplementedError("Subclasses should implement this method")  
 
     @abstractmethod
-    def loss_func(self):
+    def _objective(self) -> float:
         raise NotImplementedError("Subclasses should implement this method")
+    
+    def _compute_kde(self, data, grid):
+        kde = stats.gaussian_kde(data)
+        return kde(grid)
+
+    def _kl_divergence(self, p, q):
+        p = np.maximum(p, 1e-8)  # Avoid log(0)
+        q = np.maximum(q, 1e-8)
+        return simpson(p * np.log(p / q), dx=0.01)
     
 
     def _save_synth_data(self, path: str):

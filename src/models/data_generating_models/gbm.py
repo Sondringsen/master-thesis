@@ -21,24 +21,28 @@ class GBM(DataGeneratingModel):
             }
         else:
             params = params["params"]
-        print(params)
+
         super().__init__(train_data, N, M, **params)
 
-    def loss_func(self, params):
-        """The negative log-likelihood function for minimization."""
-        dt = self.N/252
+    def _objective(self, params):
+        """Objective function for gbm."""
+        self.params["mu"], self.params["sigma"] = params
+        self.generate_data()
 
-        mu, sigma = params
-        returns = np.diff(np.log(self.train_data["Close"]))
-        n = len(returns)
-        log_likelihood = -n/2 * np.log(2 * np.pi * sigma**2 * dt) - 1/(2 * sigma**2 * dt) * np.sum((returns - mu * dt)**2)
-        return -log_likelihood
+        train_grid = np.linspace(self.train_data_returns.min(), self.train_data_returns.max(), 1000)
+        sim_grid = np.linspace(self.synth_data_returns.min(), self.synth_data_returns.max(), 1000)
+
+        # Compute probability densities
+        p_train = self._compute_kde(self.train_data_returns, train_grid)
+        q_sim = self._compute_kde(self.synth_data_returns, sim_grid)
+        
+        return self._kl_divergence(p_train, q_sim)
 
     def fit_params_to_data(self):
         """Fits the parameters of the Black-Scholes model to the data."""
         initial_guess = [0.1, 0.2]
         bounds = [(None, None), (1e-6, None)]
-        result = minimize(self.loss_func, initial_guess, bounds=bounds)
+        result = minimize(self._objective, initial_guess, bounds=bounds)
         mu_tilde, sigma_tilde = result.x
         
         param_dic = {"mu": mu_tilde, "sigma": sigma_tilde}
@@ -46,16 +50,20 @@ class GBM(DataGeneratingModel):
         pickle.dump(param_dic, param_file)
         param_file.close()
 
-    def generate_data(self):
+    def generate_data(self, save: bool = False):
         """Generates M price paths with N timesteps using a GBM model."""
         Z = np.random.normal(size=(self.M, self.N))
+        dt = self.N/252
 
         #### TODO: S0 CANNOT BE 100 HERE, MUST SET IT SOMEWHERE ELSE
-        price_paths = 100 * np.exp(np.cumsum((self.params["mu"] - 0.5 * self.params["sigma"] ** 2) * self.N/252 + self.params["sigma"] * np.sqrt(self.N/252) * Z, axis=1))
+        S0 = 100
+        price_paths = S0 * np.exp(np.cumsum((self.params["mu"] - 0.5 * self.params["sigma"] ** 2) * self.N/252 + self.params["sigma"] * np.sqrt(dt) * Z, axis=1))
         self.synth_data = pd.DataFrame(price_paths)
+        self.synth_data_returns = self.synth_data.pct_change().dropna().to_numpy().flatten()
 
-        file_path = "data/processed/gbm_synth_data.csv"
-        self._save_synth_data(file_path)
+        if save:
+            file_path = "data/processed/gbm_synth_data.csv"
+            self._save_synth_data(file_path)
 
 if __name__ == "__main__":
     train_data = pd.read_csv("data/raw/spy_daily_closing_prices.csv", index_col=0)

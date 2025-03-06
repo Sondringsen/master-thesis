@@ -31,3 +31,7 @@ python src/main_data_generation.py --all-tune=True --all-generate=True
 ```sh
 python something
 ```
+
+### Notes
+- We should use returns as training data. At least for the gbm and heston model.
+- Look at bounds for gbm and especially heston

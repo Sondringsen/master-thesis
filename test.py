@@ -1,7 +1,7 @@
 import pandas as pd
+model = "heston"
 
-df = pd.read_csv("data/processed/gbm_synth_data.csv", index_col=0)
-print(df.head())
+df = pd.read_csv(f"data/processed/{model}_synth_data.csv", index_col=0)
 import matplotlib.pyplot as plt
 
 # Plot the first 30 timeseries
@@ -12,3 +12,11 @@ plt.xlabel('Datapoints')
 plt.ylabel('Value')
 plt.title('First 30 Timeseries')
 plt.show()
+
+import pickle
+
+file = open(f"data/params/{model}_params.pkl", "rb")
+params = pickle.load(file)
+file.close()
+
+print(params)

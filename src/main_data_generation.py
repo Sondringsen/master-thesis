@@ -12,16 +12,7 @@ def run_model(model: DataGeneratingModel, tune: bool, generate: bool):
     if tune:
         model.fit_params_to_data()
     if generate:
-        model.generate_data()
-
-# def run_heston(tune: bool, generate: bool, train_data: pd.DataFrame, N: int, M: int, params: pd.DataFrame = None):
-#     print("heston")
-
-# def run_time_gan(tune: bool, generate: bool, train_data: pd.DataFrame, N: int, M: int, params: pd.DataFrame = None):
-#     print("time_gan")
-
-# def run_time_vae(tune: bool, generate: bool, train_data: pd.DataFrame, N: int, M: int, params: pd.DataFrame = None):
-#     print("time_vae")
+        model.generate_data(save = True)
 
 
 def main():

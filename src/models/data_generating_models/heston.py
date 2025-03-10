@@ -5,18 +5,20 @@ import pickle
 from models.data_generating_models.data_generating_model import DataGeneratingModel
 
 class Heston(DataGeneratingModel):
-    def __init__(self, train_data: pd.DataFrame, N: int, M: int, **params):
+    def __init__(self, train_data: pd.DataFrame, N: int, M: int, load_params: bool, config: dict = None):
         """Initializes the Heston price paths model.
 
         Args:
             train_data (pd.DataFrame): The training data to fit the model to.
             N (int): The number of time steps.
             M (int): The number of paths to generate.
-            **params (dict): The parameters of the GBM model.
+            load_params (bool): Load parameters if set to True.
+            config (dict): A dictionary of config parameters (no config for heston).
         """
+        super().__init__(train_data, N, M, load_params, config)
 
-        if not params:
-            params = {
+        if not self.load_params:
+            self.params = {
                 "mu": None,
                 "v0": None,
                 "theta": None,
@@ -25,12 +27,12 @@ class Heston(DataGeneratingModel):
                 "sigma": None,
             }
         else:
-            params = params["params"]
+            self._load_params()
         
         # if 2*self.params["kappa"]*self.params["theta"] <= self.params["sigma"]**2:
         #     raise ValueError("Feller condition not satisfied. Check your input parameters for the Heston model.")
         
-        super().__init__(train_data, N, M, **params)
+        
         
     def _objective(self, params):
         """Objective function for heston."""
@@ -54,9 +56,8 @@ class Heston(DataGeneratingModel):
         mu, v0, kappa, theta, rho, sigma = result.x
         
         param_dic = {"mu": mu, "v0": v0, "kappa": kappa, "theta": theta, "rho": rho, "sigma": sigma}
-        param_file = open('data/params/heston_params.pkl', 'wb')
-        pickle.dump(param_dic, param_file)
-        param_file.close()
+        self.params = param_dic
+        self._save_params()
         
         
     def generate_data(self, save: bool = False):
@@ -91,3 +92,10 @@ class Heston(DataGeneratingModel):
             file_path = "data/processed/heston_synth_data.csv"
             self._save_synth_data(file_path)
         
+    def _save_params(self):
+        with open('data/params/heston_params.pkl', 'wb') as param_file:
+            pickle.dump(self.params, param_file)
+
+    def _load_params(self):
+        with open('data/params/heston_params.pkl', 'rb') as param_file:
+            self.params = pickle.load(param_file)

@@ -25,7 +25,17 @@ time_gan_config = {
     "hidden_dim": 24,
     "num_layer": 3,
     "iterations": 10000,
-    "batch_size": 128
+    "batch_size": 128,
+    "seq_len": 24,
+}
+
+quant_gan_config = {
+    "clip_value": 0.01,
+    "lr": 0.0002,
+    "num_epochs": 10,
+    "nz": 3,
+    "batch_size": 30,
+    "seq_len": 127,
 }
 
 all_available_models = ["gbm", "heston", "time_gan", "time_vae"]

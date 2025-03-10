@@ -5,13 +5,17 @@ from scipy.integrate import simpson
 import scipy.stats as stats
 
 class DataGeneratingModel(ABC):
-    def __init__(self, train_data: pd.DataFrame, N: int, M: int, **params):
+    def __init__(self, train_data: pd.DataFrame, N: int, M: int, load_params: bool, config: dict = None):
         self.train_data = train_data
-        self.train_data_returns = train_data.pct_change().dropna().to_numpy().flatten()
+        try:
+            self.train_data_returns = train_data.pct_change().dropna().to_numpy().flatten()
+        except:
+            pass
         self.N = N
         self.M = M
-        self.params = params
+        self.load_params = load_params
         self.synth_data = None
+        self.config = config
 
     @abstractmethod
     def fit_params_to_data(self):
@@ -24,7 +28,17 @@ class DataGeneratingModel(ABC):
     @abstractmethod
     def _objective(self) -> float:
         raise NotImplementedError("Subclasses should implement this method")
+
+
+    @abstractmethod
+    def _save_params(self):
+        raise NotImplementedError("Subclasses should implement this method")
     
+    @abstractmethod
+    def _load_params(self):
+        raise NotImplementedError("Subclasses should implement this method")
+
+
     def _compute_kde(self, data, grid):
         kde = stats.gaussian_kde(data)
         return kde(grid)
@@ -39,8 +53,4 @@ class DataGeneratingModel(ABC):
         # Should maybe have a data validation here
         self.synth_data.to_csv(path)
     
-    def _save_params(self, path: str):
-        self.params.to_csv(path)
-    
-    def _load_params(self, path: str):
-        self.params = pd.read_csv(path)
+

@@ -5,24 +5,26 @@ from scipy.optimize import minimize
 import pickle
 
 class GBM(DataGeneratingModel):
-    def __init__(self, train_data: pd.DataFrame, N: int, M: int, **params):
+    def __init__(self, train_data: pd.DataFrame, N: int, M: int, load_params: bool, config: dict = None):
         """Initializes the Black-Scholes price paths model.
         
         Args:
             train_data (pd.DataFrame): The training data to fit the model to.
             N (int): The number of time steps.
             M (int): The number of paths to generate.
-            **params (dict): The parameters of the GBM model.
+            load_params (bool): Load parameters if set to True.
+            config (dict): A dictionary of config parameters (no config for heston).
         """
-        if not params:
-            params = {
+        super().__init__(train_data, N, M, load_params, config)
+        
+        if not self.load_params:
+            self.params = {
                 "mu": None,
                 "sigma": None,
             }
         else:
-            params = params["params"]
+            self._load_params()
 
-        super().__init__(train_data, N, M, **params)
 
     def _objective(self, params):
         """Objective function for gbm."""
@@ -46,9 +48,9 @@ class GBM(DataGeneratingModel):
         mu_tilde, sigma_tilde = result.x
         
         param_dic = {"mu": mu_tilde, "sigma": sigma_tilde}
-        param_file = open('data/params/gbm_params.pkl', 'wb')
-        pickle.dump(param_dic, param_file)
-        param_file.close()
+        self.params = param_dic
+
+        self._save_params()
 
     def generate_data(self, save: bool = False):
         """Generates M price paths with N timesteps using a GBM model."""
@@ -64,6 +66,14 @@ class GBM(DataGeneratingModel):
         if save:
             file_path = "data/processed/gbm_synth_data.csv"
             self._save_synth_data(file_path)
+
+    def _save_params(self):
+        with open('data/params/gbm_params.pkl', 'wb') as param_file:
+            pickle.dump(self.params, param_file)
+
+    def _load_params(self):
+        with open('data/params/gbm_params.pkl', 'rb') as param_file:
+            self.params = pickle.load(param_file)
 
 if __name__ == "__main__":
     train_data = pd.read_csv("data/raw/spy_daily_closing_prices.csv", index_col=0)

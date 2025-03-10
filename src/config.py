@@ -19,4 +19,13 @@ data_generation_config = {
     "path_to_train_data": "data/raw/spy_daily_closing_prices.csv"
 }
 
+time_gan_config = {
+    "data_name": "master",
+    "module": "gru",
+    "hidden_dim": 24,
+    "num_layer": 3,
+    "iterations": 10000,
+    "batch_size": 128
+}
+
 all_available_models = ["gbm", "heston", "time_gan", "time_vae"]

@@ -1,2 +1,0 @@
-model_checkpoint_path: "timegan_model.ckpt"
-all_model_checkpoint_paths: "timegan_model.ckpt"

@@ -38,4 +38,8 @@ quant_gan_config = {
     "seq_len": 127,
 }
 
+time_vae_config = {
+    "seq_len": 30,
+}
+
 all_available_models = ["gbm", "heston", "time_gan", "time_vae"]

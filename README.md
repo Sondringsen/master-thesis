@@ -34,4 +34,7 @@ python something
 
 ### Notes
 - We should use returns as training data. At least for the gbm and heston model.
-- Look at bounds for gbm and especially heston
+- Look at bounds for gbm and especially heston.
+- Look at training of gans.
+- Look at saving and loading of parameters for timegan.
+- Time VAE and Time GAN has incomaptible tensorflow versions. Time GAN requires disabling eager run. Time VAE requires enabling it.

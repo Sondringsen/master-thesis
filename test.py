@@ -34,3 +34,4 @@ sp500 = yf.download('^GSPC','2009-05-01','2018-12-31')
 model = QuantGAN(train_data=sp500, N=30, M=1000, load_params=True, config=quant_gan_config)
 # model.fit_params_to_data()
 model.generate_data(save=True)
+

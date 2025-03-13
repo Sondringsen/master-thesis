@@ -1,3 +1,0 @@
-[submodule "src/models/data_generating_models/TimeVAE"]
-	path = src/models/data_generating_models/TimeVAE
-	url = git@github.com:Sondringsen/master-thesis.git

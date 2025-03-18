@@ -93,7 +93,7 @@ class QuantGAN(DataGeneratingModel):
             t.set_description('Loss_D: %.8f Loss_G: %.8f' % (lossD.item(), lossG.item()))
                 
         # Save mode
-        self._save_params()
+        # self._save_params()
 
 
     def generate_data(self, save = False):

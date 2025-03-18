@@ -18,13 +18,29 @@ class Heston(DataGeneratingModel):
         super().__init__(train_data, N, M, load_params, config)
 
         if not self.load_params:
+            # self.params = {
+            #     "mu": None,
+            #     "v0": None,
+            #     "theta": None,
+            #     "kappa": None,
+            #     "rho": None,
+            #     "sigma": None,
+            # }
+            # self.params = {
+            #     "mu": np.random.uniform(0, 0.01),
+            #     "v0": np.random.uniform(0, 0.01),
+            #     "theta": np.random.uniform(0, 0.01),
+            #     "kappa": np.random.uniform(0, 0.01),
+            #     "rho": np.random.uniform(0, 0.01),
+            #     "sigma": np.random.uniform(0, 0.01),
+            # }
             self.params = {
-                "mu": None,
-                "v0": None,
-                "theta": None,
-                "kappa": None,
-                "rho": None,
-                "sigma": None,
+                "mu": 0.07,
+                "v0": 0.04,
+                "theta": 0.05,
+                "kappa": 0.1,
+                "rho": -0.4,
+                "sigma": 0.2,
             }
         else:
             self._load_params()

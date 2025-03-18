@@ -39,7 +39,14 @@ quant_gan_config = {
 }
 
 time_vae_config = {
-    "seq_len": 30,
+    "sequence_length": 30,
+    "latent_dim": 8,
+    "hidden_layer_sizes": [8, 8, 8],
+    "reconstruction_wt": 3.0,
+    "batch_size": 16,
+    "use_residual_conn": True,
+    "trend_poly": 0,
+    "custom_seas": None
 }
 
 all_available_models = ["gbm", "heston", "time_gan", "time_vae"]

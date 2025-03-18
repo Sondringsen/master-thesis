@@ -23,7 +23,6 @@ def main():
     parser.add_argument('-b', '--all-generate', type=bool, help='Flag for generating data for all models', default=False)
     
     args = parser.parse_args()
-    print(args)
 
     train_data = pd.read_csv(data_generation_config["path_to_train_data"], index_col=0)
     N = data_generation_config["N"]
@@ -68,4 +67,10 @@ def main():
     
 
 if __name__ == '__main__':
-    main()
+    # main()
+    model = "heston"
+
+    train_data = pd.read_csv("data/raw/spy_daily_closing_prices.csv", index_col=0)
+
+    model = Heston(train_data, 30, 1000, False, None)
+    model.generate_data(save=True)

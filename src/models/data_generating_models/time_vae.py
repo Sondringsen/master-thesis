@@ -43,13 +43,13 @@ class TimeVAE(DataGeneratingModel):
                 "scaler": None,
             }
             self.scaled_train_data, _, self.params["scaler"] = scale_data(self.train_data)
-            self.hyperparameters = load_yaml_file(paths.HYPERPARAMETERS_FILE_PATH)["timeVAE"]
+            # self.hyperparameters = load_yaml_file(paths.HYPERPARAMETERS_FILE_PATH)["timeVAE"]
             _, sequence_length, feature_dim = self.scaled_train_data.shape
             self.params["model"] = instantiate_vae_model(
                 vae_type="timeVAE",
-                sequence_length=sequence_length,
-                feature_dim=feature_dim,
-                **self.hyperparameters,
+                # sequence_length=sequence_length,
+                feature_dim=1, # we only have closing prices
+                **self.config,
             )
         else:
             self._load_params()
@@ -60,7 +60,7 @@ class TimeVAE(DataGeneratingModel):
         train_vae(
             vae=self.params["model"],
             train_data=self.scaled_train_data,
-            max_epochs=10,
+            max_epochs=50,
             verbose=1,
         )
         self._save_params()
@@ -68,6 +68,7 @@ class TimeVAE(DataGeneratingModel):
 
     def generate_data(self, save = False):
         prior_samples = get_prior_samples(self.params["model"], num_samples=self.M)
+        # prior_samples = get_posterior_samples(self.params["model"], data=self.scaled_train_data)
         inverse_scaled_prior_samples = inverse_transform_data(prior_samples, self.params["scaler"])
         synth_data = np.squeeze(inverse_scaled_prior_samples, -1)
         self.synth_data = pd.DataFrame(synth_data)
@@ -99,13 +100,13 @@ class TimeVAE(DataGeneratingModel):
         """
         data = self.train_data.copy()
         num_samples, num_features = data.shape
-        n_samples = num_samples - self.config["seq_len"] + 1
+        n_samples = num_samples - self.config["sequence_length"] + 1
         
         if n_samples <= 0:
             raise ValueError("n_timesteps must be smaller than or equal to num_samples")
         
         reshaped_data = np.array([
-            data[i:i + self.config["seq_len"]] for i in range(n_samples)
+            data[i:i + self.config["sequence_length"]] for i in range(n_samples)
         ])
         
         self.train_data = reshaped_data

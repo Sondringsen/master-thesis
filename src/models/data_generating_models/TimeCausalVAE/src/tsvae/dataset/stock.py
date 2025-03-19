@@ -28,6 +28,7 @@ class SP500VIXDataset(Dataset):
             raise IndexError(f"At most {n} many samples!")
         self.data = self.data[:n_sample]
         self.labels = torch.tensor(self.vix).type(torch.float32)[:n_sample, None]
+        print(f"data shape: {self.data.shape} \t label shape: {self.labels.shape}")
 
 
 def logr2price(logr):
@@ -55,3 +56,28 @@ class LogrDataset(Dataset):
 
         self.data = self.price_norm[:n_sample]
         self.labels = self.init_price_norm[:n_sample, 0]
+
+
+class Master(Dataset):
+    def __init__(self, n_sample, n_timestep, base_data_dir):
+        self.n_timestep = n_timestep
+        self.n_sample = n_sample
+
+        self.sp500vix = load_obj(pt.join(base_data_dir, "sp500vix/sp500_normalized.npy"))
+        self.sp500 = self.sp500vix[:, 0]
+        # self.vix = self.sp500vix[:, 1]
+        self.path = self.sp500
+
+        self.window_shape = n_timestep
+        self.paths = sliding_window_view(self.sp500, self.window_shape)
+        stride = 1
+        self.paths = torch.tensor(self.paths).type(torch.float32)[..., None][::stride]  # stride = 1
+        self.data = self.paths / self.paths[:, :1, :]
+
+        n = len(self.data)
+        if n_sample > n:
+            raise IndexError(f"At most {n} many samples!")
+        self.data = self.data[:n_sample]
+        self.labels = torch.ones([self.data.shape[0], 1])
+        print(f"data shape: {self.data.shape} \t label shape: {self.labels.shape}")
+        # self.labels = torch.tensor(self.vix).type(torch.float32)[:n_sample, None]

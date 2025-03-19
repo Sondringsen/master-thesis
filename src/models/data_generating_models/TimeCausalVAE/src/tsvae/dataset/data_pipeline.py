@@ -7,7 +7,7 @@ from tsvae.dataset.base import BaseDataset
 from tsvae.dataset.blackscholes import BlackScholes2Dataset, BlackScholesDataset
 from tsvae.dataset.pdv import PDVPriceFeatureDataset
 from tsvae.dataset.stochasticvol import HestonDataset
-from tsvae.dataset.stock import LogrDataset, SP500VIXDataset
+from tsvae.dataset.stock import LogrDataset, SP500VIXDataset, Master
 from tsvae.utils.logger_utils import get_console_logger
 from tsvae.dataset.toy2d import MixMultiVariateNormal, CheckerBoard, Spiral
 from tsvae.utils.visualization_utils import visualize_data_2d
@@ -68,7 +68,8 @@ class DataPipeline(BasePipeline):
             dataset = SP500VIXDataset(
                 exp_config.n_sample,
                 exp_config.n_timestep,
-                base_data_dir=exp_config.base_data_dir,
+                # base_data_dir=exp_config.base_data_dir,
+                base_data_dir="../data/"
             )
             data = dataset.data
             labels = dataset.labels
@@ -95,6 +96,15 @@ class DataPipeline(BasePipeline):
             dataset = Spiral(exp_config.n_sample, **kwargs)
             data = dataset.sample().view(-1, 1, 2)
             labels = torch.ones([data.shape[0], 1])
+        elif exp_config.dataset == "Master":
+            dataset = Master(
+                exp_config.n_sample,
+                exp_config.n_timestep,
+                # base_data_dir=exp_config.base_data_dir,
+                base_data_dir="../data/"
+            )
+            data = dataset.data
+            labels = dataset.labels
         else:
             raise ValueError("No such dataset name")
         if self.base_dataset is None:

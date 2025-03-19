@@ -9,7 +9,7 @@ def get_spy_daily_closing_prices(start_date, end_date):
     return closing_prices
 
 if __name__ == "__main__":
-    start_date = '2021-01-01'
+    start_date = '2018-01-01'
     end_date = '2024-01-01'
     
     closing_prices = get_spy_daily_closing_prices(start_date, end_date)

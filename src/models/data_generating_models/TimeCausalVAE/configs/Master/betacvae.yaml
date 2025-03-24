@@ -7,25 +7,25 @@ prior: RealNVP
 discriminator: 
 dataset: Master
 
-n_timestep: 60
-n_sample: 693
+n_timestep: 30
+n_sample: 1031
 
 data_dim: 1
-data_length: 60
+data_length: 30
 latent_dim: 2
-latent_length: 60
+latent_length: 30
 condition_dim: 1
 
 #hyperparameters:  
 optimizer: Adam
-lr : 0.001
+lr : 0.01
 train_batch_size: 256
 eval_batch_size: 256
 epochs: 500
 wandb: true
 seed: 0
-steps_predict: 20
-steps_saving: 20
+steps_predict: 30
+steps_saving: 30
 
 # algo
 beta: 0.04

@@ -132,6 +132,8 @@ class BaseTrainer:
         if self.is_main_process:
             logger.info("Model passed sanity check !\n" "Ready for training.\n")
 
+        self.loss = None # added by me
+
     @property
     def is_main_process(self):
         if self.rank == 0 or self.rank == -1:
@@ -486,6 +488,8 @@ class BaseTrainer:
             dist.destroy_process_group()
 
         self.callback_handler.on_train_end(self.training_config)
+
+        self.loss = epoch_train_loss
 
     # eval step and train step can combined together
 

@@ -47,7 +47,7 @@ class TimeVAE(DataGeneratingModel):
             _, sequence_length, feature_dim = self.scaled_train_data.shape
             self.params["model"] = instantiate_vae_model(
                 vae_type="timeVAE",
-                # sequence_length=sequence_length,
+                sequence_length=sequence_length,
                 feature_dim=1, # we only have closing prices
                 **self.config,
             )

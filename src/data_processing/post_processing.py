@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from config import post_processing_config
+# from config import post_processing_config
 
 
 def post_processing(df: pd.DataFrame, clip_value_max: float, clip_value_min: float, vol: float, drift: float):
@@ -41,21 +41,21 @@ def post_processing(df: pd.DataFrame, clip_value_max: float, clip_value_min: flo
     return price_paths
 
 
-if __name__ == "__main__":
-    print(post_processing_config)
-    df = pd.read_csv("data/processed/gbm_synth_data.csv", index_col=0)
-    pdf = 400*np.exp(post_processing(df, **post_processing_config))
+# if __name__ == "__main__":
+#     print(post_processing_config)
+#     df = pd.read_csv("data/processed/gbm_synth_data.csv", index_col=0)
+#     pdf = 400*np.exp(post_processing(df, **post_processing_config))
 
-    import matplotlib.pyplot as plt
+#     import matplotlib.pyplot as plt
 
-    # Plot the first 30 price paths
-    plt.figure(figsize=(12, 6))
-    for i in range(min(30, len(pdf))):
-        plt.plot(pdf.columns, pdf.iloc[i], color="Red", alpha=0.5)
+#     # Plot the first 30 price paths
+#     plt.figure(figsize=(12, 6))
+#     for i in range(min(30, len(pdf))):
+#         plt.plot(pdf.columns, pdf.iloc[i], color="Red", alpha=0.5)
 
-    plt.title('First 30 Price Paths')
-    plt.xlabel('Time Steps')
-    plt.ylabel('Price')
-    plt.grid()
-    plt.show()
+#     plt.title('First 30 Price Paths')
+#     plt.xlabel('Time Steps')
+#     plt.ylabel('Price')
+#     plt.grid()
+#     plt.show()
 

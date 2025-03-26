@@ -102,7 +102,7 @@ def hedging(df: pd.DataFrame) -> float:
     train_data = dataset[train_indices]
     val_data = dataset[val_indices]
 
-    batch_size = 128
+    batch_size = 2048
     train_loader = DataLoader(TensorDataset(train_data), batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(TensorDataset(val_data), batch_size=batch_size, shuffle=False)
 
@@ -139,7 +139,7 @@ def hedging(df: pd.DataFrame) -> float:
 
         if epoch % print_interval == 0:
             elapsed = time.time() - start_time
-            print(f"Epoch {epoch}, Training Loss: {avg_train_loss:.6f}, Time: {elapsed:.2f}s")
+            print(f"Epoch {epoch}, Training Loss: {avg_train_loss:.12f}, Time: {elapsed:.2f}s")
 
     # --- Evaluation on Validation Set ---
     model.eval()
@@ -149,5 +149,5 @@ def hedging(df: pd.DataFrame) -> float:
             loss = model.compute_loss(batch_tensor)
             val_losses.append(loss.item())
         avg_val_loss = np.mean(val_losses)
-    print(f"Validation Loss: {avg_val_loss:.6f}")
+    print(f"Validation Loss: {avg_val_loss:.12f}")
     return avg_val_loss

@@ -3,7 +3,7 @@ import pandas as pd
 # from config import post_processing_config
 
 
-def post_processing(df: pd.DataFrame, clip_value_max: float, clip_value_min: float, vol: float, drift: float):
+def post_processing(df: pd.DataFrame, clip_value_max: float, clip_value_min: float, vol: float, drift: float, s0: float):
     """
     Clips, scales and remove drift from generated data.
 
@@ -19,11 +19,9 @@ def post_processing(df: pd.DataFrame, clip_value_max: float, clip_value_min: flo
             The new dataframe will be normalized from 1
     """
     log_returns = np.log(df/df.shift(axis=1)).dropna(axis=1)
-    print(log_returns)
 
     # Clip
     log_returns = log_returns.clip(upper=clip_value_max, lower=clip_value_min)
-    print(log_returns)
     
     # Scale
     scaling_factor = vol / log_returns.iloc[:, -1].std()
@@ -38,7 +36,7 @@ def post_processing(df: pd.DataFrame, clip_value_max: float, clip_value_min: flo
     price_paths = log_returns.cumsum(axis=1)
     
 
-    return price_paths
+    return s0*np.exp(price_paths)
 
 
 # if __name__ == "__main__":

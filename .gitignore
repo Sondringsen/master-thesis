@@ -1,5 +1,9 @@
 .venv/
 **/__pycache__/
 .DS_Store
-*.csv
 test.py
+*.json
+*.yaml
+*.log
+*.wandb
+*.pt

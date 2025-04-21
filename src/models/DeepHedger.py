@@ -46,21 +46,30 @@ class DeepHedger(nn.Module):
         hedge_decisions = self.feedforward(hidden_states)  # (batch, n_steps, 1)
         return hedge_decisions
 
-    def compute_loss(self, paths: torch.Tensor) -> torch.Tensor:
+    def compute_loss(self, paths: torch.Tensor, plot=False) -> torch.Tensor:
         """
         Computes a loss based on semi-quadratic penalty
         paths: Tensor of shape (batch, n_steps) representing price paths.
         loss: Scalar tensor 
         """
         hedges = self.compute_hedge(paths)  # (batch, n_steps, 1)
-        price_increments = paths[:, 1:] - paths[:, :-1]  #change here if we want to have data in returns instead
+        transaction_costs = torch.sum(1e-3*torch.abs(hedges[:, 1:, 0] - hedges[:, :-1, 0]), dim=1) # hard-coded transaction costs. can change later if we want more general
+        price_increments = paths[:, 1:] - paths[:, :-1]  # change here if we want to have data in returns instead
         hedges_trunc = hedges[:, :-1, 0]  # (batch, n_steps-1)
         portfolio = torch.sum(hedges_trunc * price_increments, dim=1) #change here if we want to have data in returns instead
         final_prices = paths[:, -1]
         payoff = torch.clamp(final_prices - self.strike, min=0) #here is hard coded a european call. Can change later if we want more general
-        final_values = portfolio - payoff
+        final_values = portfolio - payoff - transaction_costs
+        # if plot:
+        #     import matplotlib.pyplot as plt
+        #     plt.hist(final_values.cpu().detach().numpy(), bins=50, alpha=0.75, color='blue')
+        #     plt.title("Distribution of Final Portfolio Values")
+        #     plt.xlabel("Final Portfolio Value")
+        #     plt.ylabel("Frequency")
+        #     plt.grid(True)
+        #     plt.show()
         penalized = torch.where(final_values < 0, final_values, torch.tensor(0.0, device=final_values.device)) #hard-coded loss. can change later if we want more general
-        loss = torch.mean(penalized ** 2)
+        loss = torch.mean(penalized ** 2) + torch.mean(penalized ** 4)
         return loss
 
     def forward(self, paths: torch.Tensor) -> torch.Tensor:
@@ -69,7 +78,7 @@ class DeepHedger(nn.Module):
         """
         return self.compute_hedge(paths)
 
-def hedging(df: pd.DataFrame) -> float:
+def hedging(df: pd.DataFrame, val_data: pd.DataFrame) -> float:
     """
     General purpose hedging function.
     
@@ -88,7 +97,7 @@ def hedging(df: pd.DataFrame) -> float:
     # This file should contain a tensor of shape (n_paths, n_steps)
     # dataset = torch.load('data/processed/gbm_synth_data.csv')
     dataset = torch.tensor(df.values, dtype=torch.float32)
-
+    val_data = torch.tensor(val_data.values, dtype=torch.float32)
     # Determine device (GPU if available)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dataset = dataset.to(device)
@@ -98,9 +107,9 @@ def hedging(df: pd.DataFrame) -> float:
     indices = torch.randperm(n_samples)
     train_split = int(0.8 * n_samples)
     train_indices = indices[:train_split]
-    val_indices = indices[train_split:]
+    # val_indices = indices[train_split:]
     train_data = dataset[train_indices]
-    val_data = dataset[val_indices]
+    # val_data = dataset[val_indices]
 
     batch_size = 2048
     train_loader = DataLoader(TensorDataset(train_data), batch_size=batch_size, shuffle=True)

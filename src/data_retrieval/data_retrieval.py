@@ -1,7 +1,7 @@
 import yfinance as yf
 import pandas as pd
 from arch import arch_model
-from config import START_DATE_TRAIN, START_DATE_TEST, END_DATE_TRAIN, END_DATE_TEST, OUT_DIR_TRAIN, OUT_DIR_TEST
+from config import START_DATE_TRAIN, START_DATE_VAL, START_DATE_TEST, END_DATE_TRAIN, END_DATE_VAL, END_DATE_TEST, OUT_DIR_TRAIN, OUT_DIR_VAL, OUT_DIR_TEST
 
 def get_spy_daily_closing_prices(start_date, end_date):
     spy_data = yf.download('SPY', start=start_date, end=end_date, interval='1d', auto_adjust=True)
@@ -30,6 +30,7 @@ def main(start_date, end_date, out_dir):
 
 if __name__ == "__main__":
     main(START_DATE_TRAIN, END_DATE_TRAIN, OUT_DIR_TRAIN)
+    main(START_DATE_VAL, END_DATE_VAL, OUT_DIR_VAL)
     main(START_DATE_TEST, END_DATE_TEST, OUT_DIR_TEST)
     
     

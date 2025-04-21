@@ -1,7 +1,6 @@
-dic1 = {"a": "1", "b": "2"}
-dic2 = {"c": "3", "d": "4"}
+import pandas as pd
+import numpy as np
 
-dic1.update(dic2)
-print(dic1)
-dic3 = dic1 + dic2
-print(dic3)
+data = np.load("src/models/data_generating_models/Diffusion-TS-main/master_thesis/samples/master_thesis_ground_truth_30_train.npy")
+print(data.shape)
+

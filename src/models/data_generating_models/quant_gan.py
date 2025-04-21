@@ -97,12 +97,15 @@ class QuantGAN(DataGeneratingModel):
 
 
     def generate_data(self, save = False):
-        fakes = []
-        for i in range(self.M):
-            noise = torch.randn(1, self.N, 3, device=self.device)
-            fake = self.params["netG"](noise).detach().cpu().reshape(self.N).numpy()
-            fake = self._inverse(fake * self.max, self.igmm_params) + self.log_mean
-            fakes.append(fake)
+        fakes_list = []
+        batch_size = int(self.M/100)
+        for i in range(0, self.M, batch_size):
+            noise = torch.randn(min(batch_size, self.M - i), self.N, 3, device=self.device)
+            fakes_tensor = self.params["netG"](noise).detach().cpu().numpy().reshape(-1, self.N)
+            fakes_list.append(fakes_tensor)
+        
+        fakes_tensor = np.vstack(fakes_list)  # Combine batches
+        fakes = self._inverse(fakes_tensor * self.max, self.igmm_params) + self.log_mean
         fakes_df = pd.DataFrame(fakes).T.cumsum()
         self.synth_data = fakes_df.T
 

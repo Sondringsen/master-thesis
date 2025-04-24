@@ -1,8 +1,8 @@
 from models.data_generating_models.data_generating_model import DataGeneratingModel
 import pandas as pd
-from models.data_generating_models.TimeGAN.timegan1 import train_timegan, generate_synthetic_data
+from models.data_generating_models.TimeGAN.timegan1 import train_timegan, generate_synthetic_data, train_and_generate
 from models.data_generating_models.TimeGAN.data_loading import real_data_loading
-
+import tensorflow as tf
 class TimeGAN(DataGeneratingModel):
     def __init__(self, train_data: pd.DataFrame, N: int, M: int, load_params: bool, config: dict):
         """Initializes the TimeGAN model.
@@ -16,12 +16,15 @@ class TimeGAN(DataGeneratingModel):
         """
         transformed_train_data = real_data_loading("master", config["seq_len"])
         super().__init__(transformed_train_data, N, M, load_params, config)
+        # Disable eager execution for TimeGAN
+        tf.compat.v1.disable_eager_execution()
 
     def fit_params_to_data(self):
         train_timegan(self.train_data, self.config)
 
     def generate_data(self, save: bool = False):
-        generated_data = generate_synthetic_data(self.train_data, self.config)
+        generated_data = train_and_generate(self.train_data, self.config, self.M)
+        # generated_data = generate_synthetic_data(self.train_data, self.config, self.M)
         self.synth_data = generated_data
         if save:
             self._save_synth_data("data/processed/time_gan_synth_data.csv")

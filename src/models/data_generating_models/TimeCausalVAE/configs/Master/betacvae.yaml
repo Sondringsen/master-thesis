@@ -18,7 +18,7 @@ condition_dim: 1
 
 #hyperparameters:  
 optimizer: Adam
-lr : 0.0005
+lr : 0.002797303101232966
 train_batch_size: 256
 eval_batch_size: 256
 epochs: 500
@@ -42,13 +42,13 @@ C_output_dim: 0
 
 #encoder hyperparameter:
 E_input_dim: 3
-E_hidden_dim: 8
+E_hidden_dim: 32
 E_num_layers: 2
 E_output_dim: 2
 
 #generator hyperparameter:
 D_input_dim: 3
-D_hidden_dim: 32
+D_hidden_dim: 16
 D_num_layers: 2
 D_output_dim: 1
 

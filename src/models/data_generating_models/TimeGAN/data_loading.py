@@ -97,7 +97,7 @@ def real_data_loading (data_name, seq_len):
     ori_data = np.loadtxt('data/energy_data.csv', delimiter = ",",skiprows = 1)
   ### New data source used for master-thesis
   elif data_name == 'master':
-    ori_data = np.loadtxt('data/raw/spy_daily_closing_prices.csv', delimiter = ",",skiprows = 1, usecols=[1])
+    ori_data = np.loadtxt('../data/raw/spy_daily_closing_prices_train.csv', delimiter = ",",skiprows = 1, usecols=[1])
     ori_data = np.reshape(ori_data, (len(ori_data), 1))
 
         

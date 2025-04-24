@@ -47,8 +47,8 @@ class TimeVAE(DataGeneratingModel):
             _, sequence_length, feature_dim = self.scaled_train_data.shape
             self.params["model"] = instantiate_vae_model(
                 vae_type="timeVAE",
-                sequence_length=sequence_length,
-                feature_dim=1, # we only have closing prices
+                # sequence_length=sequence_length,
+                feature_dim=feature_dim, # we only have closing prices
                 **self.config,
             )
         else:
@@ -60,8 +60,8 @@ class TimeVAE(DataGeneratingModel):
         train_vae(
             vae=self.params["model"],
             train_data=self.scaled_train_data,
-            max_epochs=50,
-            verbose=1,
+            max_epochs=200,
+            verbose=0,
         )
         self._save_params()
     
@@ -70,7 +70,7 @@ class TimeVAE(DataGeneratingModel):
         prior_samples = get_prior_samples(self.params["model"], num_samples=self.M)
         # prior_samples = get_posterior_samples(self.params["model"], data=self.scaled_train_data)
         inverse_scaled_prior_samples = inverse_transform_data(prior_samples, self.params["scaler"])
-        synth_data = np.squeeze(inverse_scaled_prior_samples, -1)
+        synth_data = np.squeeze(inverse_scaled_prior_samples[:, :, 0:1], -1)
         self.synth_data = pd.DataFrame(synth_data)
         if save:
             self._save_synth_data("data/processed/time_vae_synth_data.csv")

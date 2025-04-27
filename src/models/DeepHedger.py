@@ -78,7 +78,7 @@ class DeepHedger(nn.Module):
         """
         return self.compute_hedge(paths)
 
-def hedging(df: pd.DataFrame, val_data: pd.DataFrame) -> float:
+def hedging(df: pd.DataFrame, val_data: pd.DataFrame, test_data: pd.DataFrame | None = None) -> float:
     """
     General purpose hedging function.
     
@@ -98,6 +98,7 @@ def hedging(df: pd.DataFrame, val_data: pd.DataFrame) -> float:
     # dataset = torch.load('data/processed/gbm_synth_data.csv')
     dataset = torch.tensor(df.values, dtype=torch.float32)
     val_data = torch.tensor(val_data.values, dtype=torch.float32)
+    test_data = torch.tensor(test_data.values, dtype=torch.float32) if test_data is not None else None
     # Determine device (GPU if available)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     dataset = dataset.to(device)
@@ -114,6 +115,7 @@ def hedging(df: pd.DataFrame, val_data: pd.DataFrame) -> float:
     batch_size = 2048
     train_loader = DataLoader(TensorDataset(train_data), batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(TensorDataset(val_data), batch_size=batch_size, shuffle=False)
+    test_loader = DataLoader(TensorDataset(test_data), batch_size=batch_size, shuffle=False) if test_data is not None else None
 
     # --- Hyperparameters for Single Parameter Combination ---
     strike = 1.0
@@ -159,4 +161,18 @@ def hedging(df: pd.DataFrame, val_data: pd.DataFrame) -> float:
             val_losses.append(loss.item())
         avg_val_loss = np.mean(val_losses)
     print(f"Validation Loss: {avg_val_loss:.12f}")
-    return avg_val_loss
+
+    # --- Evaluation on Test Set ---
+    if test_data is not None:
+        model.eval()
+        with torch.no_grad():
+            test_losses = []
+            for (batch_tensor,) in test_loader:
+                loss = model.compute_loss(batch_tensor)
+                test_losses.append(loss.item())
+            avg_test_loss = np.mean(test_losses)
+
+    if test_data is not None:
+        return avg_val_loss, avg_test_loss
+    else:
+        return avg_val_loss

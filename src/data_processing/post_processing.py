@@ -28,7 +28,8 @@ def post_processing(df: pd.DataFrame, clip_value_max: float, clip_value_min: flo
     log_returns = log_returns.clip(upper=clip_value_max, lower=clip_value_min)
     
     # Scale
-    scaling_factor = 2*vol / log_returns.iloc[:, -1].std()
+    # scaling_factor = 2*vol / log_returns.iloc[:, -1].std()
+    scaling_factor = vol/log_returns.std()
     log_returns *= scaling_factor
 
     # Drift
@@ -47,19 +48,34 @@ def post_processing(df: pd.DataFrame, clip_value_max: float, clip_value_min: flo
 
 if __name__ == "__main__":
     from config import post_processing_config
-    df = pd.read_csv("data/processed/gbm_synth_data.csv", index_col=0)
-    pdf = post_processing(df, **post_processing_config)
+    # df = pd.read_csv("data/processed/gbm_synth_data.csv", index_col=0)
+    # pdf = post_processing(df, **post_processing_config)
 
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
-    # Plot the first 30 price paths
-    plt.figure(figsize=(12, 6))
-    for i in range(min(30, len(pdf))):
-        plt.plot(pdf.columns, pdf.iloc[i], color="Red", alpha=0.5)
+    # # Plot the first 30 price paths
+    # plt.figure(figsize=(12, 6))
+    # for i in range(min(30, len(pdf))):
+    #     plt.plot(pdf.columns, pdf.iloc[i], color="Red", alpha=0.5)
 
-    plt.title('First 30 Price Paths')
-    plt.xlabel('Time Steps')
-    plt.ylabel('Price')
-    plt.grid()
-    plt.show()
+    # plt.title('First 30 Price Paths')
+    # plt.xlabel('Time Steps')
+    # plt.ylabel('Price')
+    # plt.grid()
+    # plt.show()
+
+    # Generate random data and test post-processing
+    import numpy as np
+    import pandas as pd
+    
+    # Generate random matrix
+    random_data = np.random.randn(100000, 30)
+    df = pd.DataFrame(random_data)
+    
+    # Apply post-processing with default parameters
+    processed_df = post_processing(df, **post_processing_config)
+    
+    print(f"Shape of processed data: {processed_df.shape}")
+    print("\nFirst few rows:")
+    print(processed_df.head())
 

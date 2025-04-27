@@ -39,8 +39,8 @@ class QuantGAN(DataGeneratingModel):
             self._load_params()
 
         
-        random.seed(42)
-        torch.manual_seed(42)
+        # random.seed(42)
+        # torch.manual_seed(42)
 
         # self.data_log = np.log(self.train_data['Close'] / self.train_data['Close'].shift(1))[1:].values
         self.data_log = np.log(self.train_data.iloc[:, 0] / self.train_data.iloc[:, 0].shift(1))[1:].values

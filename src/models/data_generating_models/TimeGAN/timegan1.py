@@ -218,9 +218,9 @@ def train_and_generate(ori_data, config, M):
   # Clear any existing graph and reset variable scopes
   tf.compat.v1.reset_default_graph()
   
-  print(np.asarray(ori_data).shape)
   no, seq_len, dim = np.asarray(ori_data).shape
   ori_time, max_seq_len = extract_time(ori_data)
+  ori_time, max_seq_len = np.full(M, seq_len).tolist(), seq_len
   ori_data, min_val, max_val = MinMaxScaler(ori_data)
 
   hidden_dim = config['hidden_dim']
@@ -317,17 +317,18 @@ def train_and_generate(ori_data, config, M):
               ', g_loss_v: ' + str(np.round(step_g_loss_v,4)) +
               ', e_loss_t0: ' + str(np.round(np.sqrt(step_e_loss_t0),4))  )
           
-    with tf.compat.v1.Session(graph=graph) as sess:
-      # saver.restore(sess, 'data/params/time_gan/timegan_model.ckpt')
-        Z_mb = random_generator(no, z_dim, ori_time, max_seq_len)
-        generated_data_curr = sess.run(X_hat, feed_dict={Z: Z_mb, X: ori_data, T: ori_time})
+    # with tf.compat.v1.Session(graph=graph) as sess:
+      # saver.restore(sess, 'data/params/time_gan/timegan_model.ckpt') 
+      print("Generating data")
+      Z_mb = random_generator(M, z_dim, ori_time, max_seq_len)
+      generated_data_curr = sess.run(X_hat, feed_dict={Z: Z_mb, X: ori_data, T: ori_time})
 
-        generated_data = list()
-        for i in range(no):
-          temp = generated_data_curr[i,:ori_time[i],:]
-          generated_data.append(temp)
+      generated_data = list()
+      for i in range(M):
+        temp = generated_data_curr[i,:ori_time[i],:]
+        generated_data.append(temp)
 
-        generated_data = generated_data * max_val
-        generated_data = generated_data + min_val
+      generated_data = generated_data * max_val
+      generated_data = generated_data + min_val
 
-    return generated_data
+    return pd.DataFrame(generated_data.squeeze(-1))

@@ -46,7 +46,7 @@ class DeepHedger(nn.Module):
         hedge_decisions = self.feedforward(hidden_states)  # (batch, n_steps, 1)
         return hedge_decisions
 
-    def compute_loss(self, paths: torch.Tensor, plot=False) -> torch.Tensor:
+    def compute_loss(self, paths: torch.Tensor, plot=False, call=True) -> torch.Tensor:
         """
         Computes a loss based on semi-quadratic penalty
         paths: Tensor of shape (batch, n_steps) representing price paths.
@@ -58,7 +58,10 @@ class DeepHedger(nn.Module):
         hedges_trunc = hedges[:, :-1, 0]  # (batch, n_steps-1)
         portfolio = torch.sum(hedges_trunc * price_increments, dim=1) #change here if we want to have data in returns instead
         final_prices = paths[:, -1]
-        payoff = torch.clamp(final_prices - self.strike, min=0) #here is hard coded a european call. Can change later if we want more general
+        if call:
+            payoff = torch.clamp(final_prices - self.strike, min=0) #here is hard coded a european call. Can change later if we want more general
+        else:
+            payoff = torch.clamp(self.strike - final_prices, min=0) #here is hard coded a european put. Can change later if we want more general
         final_values = portfolio - payoff - transaction_costs
         # if plot:
         #     import matplotlib.pyplot as plt
@@ -78,7 +81,7 @@ class DeepHedger(nn.Module):
         """
         return self.compute_hedge(paths)
 
-def hedging(df: pd.DataFrame, val_data: pd.DataFrame, test_data: pd.DataFrame | None = None) -> float:
+def hedging(df: pd.DataFrame, val_data: pd.DataFrame, test_data: pd.DataFrame | None = None, call=True) -> float:
     """
     General purpose hedging function.
     
@@ -142,7 +145,7 @@ def hedging(df: pd.DataFrame, val_data: pd.DataFrame, test_data: pd.DataFrame | 
         epoch_losses = []
         for (batch_tensor,) in train_loader:
             optimizer.zero_grad()
-            loss = model.compute_loss(batch_tensor)
+            loss = model.compute_loss(batch_tensor, call=call)
             loss.backward()
             optimizer.step()
             epoch_losses.append(loss.item())
@@ -157,7 +160,7 @@ def hedging(df: pd.DataFrame, val_data: pd.DataFrame, test_data: pd.DataFrame | 
     with torch.no_grad():
         val_losses = []
         for (batch_tensor,) in val_loader:
-            loss = model.compute_loss(batch_tensor)
+            loss = model.compute_loss(batch_tensor, call=call)
             val_losses.append(loss.item())
         avg_val_loss = np.mean(val_losses)
     print(f"Validation Loss: {avg_val_loss:.12f}")
@@ -168,7 +171,7 @@ def hedging(df: pd.DataFrame, val_data: pd.DataFrame, test_data: pd.DataFrame | 
         with torch.no_grad():
             test_losses = []
             for (batch_tensor,) in test_loader:
-                loss = model.compute_loss(batch_tensor)
+                loss = model.compute_loss(batch_tensor, call=call)
                 test_losses.append(loss.item())
             avg_test_loss = np.mean(test_losses)
 

@@ -8,3 +8,9 @@ test.py
 *.wandb
 *.pt
 !master_thesis.yaml
+*.csv
+*.txt
+*.png
+*.tex
+*.h5
+*.pkl
